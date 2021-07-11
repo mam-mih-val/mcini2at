@@ -27,7 +27,7 @@ link_directories(
         ${AnalysisTree_LIBRARY_DIR}
 )
 
-add_executable(convert src/convert.cc src/converter.cc)
+add_executable(convert src/convert.cc src/converter.h src/converter.cc)
 target_link_libraries(convert ${ROOT_LIBRARIES} ROOT::EG AnalysisTreeBase AnalysisTreeInfra $ENV{McIniData_DIR}/build/libMcIniData.so)
 
 add_executable(multiplicity src/calculate.cc src/multiplicity.cc)
