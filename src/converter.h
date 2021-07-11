@@ -17,6 +17,8 @@
 #include <AnalysisTree/Particle.hpp>
 #include <AnalysisTree/Configuration.hpp>
 
+#include <EventInitialState.h>
+#include <TH1F.h>
 #include <UEvent.h>
 #include <UParticle.h>
 #include <URun.h>
@@ -35,6 +37,7 @@ private:
   void InitParticles();
   void InitDataHeader();
   void AddFilesFromList(const std::string& list_name);
+  void InitCentralityHisto();
   // output tree fields
   TFile* out_file_;
   TTree* out_tree_;
@@ -50,6 +53,11 @@ private:
   TFile* mcini_file_{ nullptr};
   UEvent *mcini_event_{nullptr};
   URun *mcini_run_info{nullptr};
+  EventInitialState *mcini_initial_state_{nullptr};
+  double beta_cm_;
+
+  TH1F* centrality_classes_{nullptr};
+
 };
 
 #endif // BOTVINA2HGEANT_SRC_CONVERTER_H_

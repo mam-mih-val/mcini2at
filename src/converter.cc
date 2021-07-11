@@ -9,6 +9,7 @@ void Converter::Init(const std::string&in_file_list, const std::string& out_file
   AddFilesFromList( in_file_list );
   mcini_event_ = new UEvent;
   mcini_chain_->SetBranchAddress("event", &mcini_event_);
+  mcini_chain_->SetBranchAddress("iniState", &mcini_initial_state_);
   mcini_file_->GetObject( "run", mcini_run_info );
 
   out_file_ = TFile::Open( out_file_name.c_str(), "recreate" );
@@ -18,6 +19,8 @@ void Converter::Init(const std::string&in_file_list, const std::string& out_file
   this->InitEventHeader();
   this->InitParticles();
   at_configuration_.Write("Configuration");
+
+  this->InitCentralityHisto();
 }
 
 void Converter::Exec() {
@@ -25,11 +28,17 @@ void Converter::Exec() {
   int n_particles =  mcini_event_->GetNpa();
   float b = mcini_event_->GetB();
   float psi_rp = mcini_event_->GetPhi();
+  int n_part = (int) mcini_initial_state_->getNPart();
+  int n_col =  (int) mcini_initial_state_->getNColl();
+
+
 
   at_event_header_->SetField( psi_rp, at_event_header_config_.GetFieldId("reaction_plane"));
   at_event_header_->SetField( b, at_event_header_config_.GetFieldId("impact_parameter"));
   at_event_header_->SetField( evt_id, at_event_header_config_.GetFieldId("event_id"));
   at_event_header_->SetField( n_particles, at_event_header_config_.GetFieldId("number_of_particles"));
+  at_event_header_->SetField( n_part, at_event_header_config_.GetFieldId("n_part"));
+  at_event_header_->SetField( n_col, at_event_header_config_.GetFieldId("n_col"));
 
   at_particles_->ClearChannels();
 
@@ -38,6 +47,7 @@ void Converter::Exec() {
   auto z_id = at_particles_config_.GetFieldId("z");
   auto t_id = at_particles_config_.GetFieldId("t");
 
+  int n_accepted = 0;
   for( int i=0; i<n_particles; ++i ){
     auto in_particle = mcini_event_->GetParticle(i);
     auto out_particle = at_particles_->AddChannel();
@@ -59,7 +69,24 @@ void Converter::Exec() {
     out_particle->SetField( (float) pos4.Y(), y_id );
     out_particle->SetField( (float) pos4.Z(), z_id );
     out_particle->SetField( (float) pos4.T(), t_id );
+    auto mom4_lab = in_particle->GetMomentum();
+    mom4_lab.Boost( {0.0, 0.0, beta_cm_} );
+    auto theta = mom4_lab.Theta();
+    if( theta < TMath::DegToRad()*18.0 )
+      continue;
+    if( theta > TMath::DegToRad()*85.0 )
+      continue;
+    auto pid = in_particle->GetPdg();
+    int charge=0;
+    if(TDatabasePDG::Instance()->GetParticle(pid))
+      charge = (int) TDatabasePDG::Instance()->GetParticle(pid)->Charge() / 3;
+    if( charge != 0 ) {
+      n_accepted++;
+    }
   }
+  int c_class = centrality_classes_->GetBinContent(centrality_classes_->FindBin( n_accepted ));
+  float centrality = c_class*10.0f+5.0f;
+  at_event_header_->SetField( centrality, at_event_header_config_.GetFieldId("centrality"));
 }
 
 void Converter::InitEventHeader() {
@@ -67,6 +94,8 @@ void Converter::InitEventHeader() {
   at_event_header_config_.AddField<int>("event_id");
   at_event_header_config_.AddField<int>("number_of_particles");
   at_event_header_config_.AddField<float>("impact_parameter");
+  at_event_header_config_.AddField<int>("n_part");
+  at_event_header_config_.AddField<int>("n_col");
   at_event_header_config_.AddField<float>("reaction_plane");
   at_event_header_config_.AddField<float>("centrality");
 
@@ -141,4 +170,14 @@ void Converter::InitDataHeader() {
   auto PZ = M * BETA * GAMMA;
   at_data_header_.SetBeamMomentum( PZ );
   at_data_header_.Write("DataHeader");
+  beta_cm_ = sqrt( 1.0 - pow( 2*M/sqrt_snn, 2 ) );
+}
+void Converter::InitCentralityHisto() {
+  std::vector<double> edges{0, 16, 21, 26, 33, 43, 56, 73, 95, 125, 300};
+  centrality_classes_ = new TH1F( "centrality", "", edges.size()-1, edges.data() );
+  auto c_class = edges.size()-2;
+  for( int i=0; i<centrality_classes_->GetNbinsX(); ++i ){
+    centrality_classes_->SetBinContent(i+1, c_class);
+    c_class--;
+  }
 }
