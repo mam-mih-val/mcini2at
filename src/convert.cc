@@ -2,8 +2,9 @@
 // Created by mikhail on 6/15/21.
 //
 
-#include "converter.h"
 #include <stdexcept>
+#include "converter.h"
+
 int main( int n_args, char** args){
   if ( n_args < 3 ){
     throw std::runtime_error( "Error: minimum 2 arguments expected. Use ./convert input.list outfile.root" );
