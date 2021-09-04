@@ -16,6 +16,7 @@ FetchContent_Declare(
         GIT_TAG        v1.0.9
         CMAKE_ARGS
         "-DBOOST_ROOT=${BOOST_ROOT}"
+        "-CMAKE_CXX_STANDARD=11"
 )
 
 FetchContent_MakeAvailable(AnalysisTree)
