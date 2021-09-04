@@ -14,6 +14,8 @@ FetchContent_Declare(
         AnalysisTree
         GIT_REPOSITORY https://github.com/HeavyIonAnalysis/AnalysisTree
         GIT_TAG        v1.0.9
+        CMAKE_ARGS
+        "-DBOOST_ROOT=${BOOST_ROOT}"
 )
 
 FetchContent_MakeAvailable(AnalysisTree)
@@ -27,7 +29,6 @@ include_directories(
         ${CMAKE_SOURCE_DIR}/src
         ${ROOT_INCLUDE_DIRS}
         $ENV{McIniData_DIR}/include
-        $ENV{AnalysisTree_INCLUDE_DIR}/include
 )
 
 link_directories(
