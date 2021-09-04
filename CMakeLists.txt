@@ -30,11 +30,11 @@ include_directories(
         ${ROOT_INCLUDE_DIRS}
         $ENV{McIniData_DIR}/include
 )
-
-link_directories(
-        ${CMAKE_SOURCE_DIR}
-        ${AnalysisTree_LIBRARY_DIR}
-)
+#
+#link_directories(
+#        ${CMAKE_SOURCE_DIR}
+#        ${AnalysisTree_LIBRARY_DIR}
+#)
 
 add_executable(convert src/convert.cc src/converter.h src/converter.cc)
 target_link_libraries(convert ${ROOT_LIBRARIES} ROOT::EG AnalysisTreeBase $ENV{McIniData_DIR}/build/libMcIniData.so)
