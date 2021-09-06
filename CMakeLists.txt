@@ -13,7 +13,7 @@ include(FetchContent)
 FetchContent_Declare(
         AnalysisTree
         GIT_REPOSITORY https://github.com/HeavyIonAnalysis/AnalysisTree
-        GIT_TAG        v1.0.9
+        GIT_TAG        v1.0.10
         CMAKE_ARGS
         "-DBOOST_ROOT=${BOOST_ROOT}"
         "-CMAKE_CXX_STANDARD=11"
