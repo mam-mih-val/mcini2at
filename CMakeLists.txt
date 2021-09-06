@@ -21,7 +21,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(AnalysisTree)
 
-
 set(CMAKE_CXX_FLAGS "-Wall")
 include(${ROOT_USE_FILE})
 
