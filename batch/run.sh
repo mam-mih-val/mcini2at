@@ -3,7 +3,7 @@
 file_list=$1
 output_dir=$2
 
-ownroot=/cvmfs/hades.gsi.de/install/6.12.06/hydra2-5.5a/defall.sh
+ownroot=/lustre/nyx/hades/user/mmamaev/install/root-6.20.04-debian10-cxx11/bin/thisroot.sh
 
 current_dir=$(pwd)
 partition=main
@@ -17,7 +17,7 @@ mkdir -p $output_dir
 mkdir -p $log_dir
 mkdir -p $lists_dir
 
-split -l 100 -d -a 3 --additional-suffix=.list "$file_list" $lists_dir
+split -l 100 -d -a 1000 --additional-suffix=.list "$file_list" $lists_dir
 
 n_runs=$(ls $lists_dir/*.list | wc -l)
 
@@ -30,4 +30,4 @@ echo lists_dir=$lists_dir
 echo n_runs=$n_runs
 echo job_range=$job_range
 
-sbatch -J Yield -p $partition -t $time -a $job_range -e ${log_dir}/%A_%a.e -o ${log_dir}/%A_%a.o --export=output_dir=$output_dir,file_list=$file_list,ownroot=$ownroot,lists_dir=$lists_dir,build_dir=$build_dir -- /cvmfs/vae.gsi.de/debian8/containers/debian8-user_container_20210708T0947.sif /lustre/nyx/hades/user/mmamaev/mcini2at/batch/batch_run.sh
+sbatch -J McIniData2AT -p $partition -t $time -a $job_range -e ${log_dir}/%A_%a.e -o ${log_dir}/%A_%a.o --export=output_dir=$output_dir,file_list=$file_list,ownroot=$ownroot,lists_dir=$lists_dir,build_dir=$build_dir -- /cvmfs/vae.gsi.de/debian10/containers/debian10-user_container_20210906T1100.sif /lustre/nyx/hades/user/mmamaev/mcini2at/batch/batch_run.sh
