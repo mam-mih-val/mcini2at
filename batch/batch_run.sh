@@ -24,6 +24,8 @@ module use /cvmfs/it.gsi.de/modulefiles/
 module load compiler/gcc/9.1.0
 module load boost/1.71.0_gcc9.1.0
 
+date
+
 echo "executing $build_dir/convert $filelist output.root"
 
 $build_dir/convert $filelist output.root
